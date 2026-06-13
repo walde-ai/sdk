@@ -1,10 +1,8 @@
 import { Future, Result, ok, err } from '@/std';
-import { WaldeAdmin } from './walde-admin-future';
-import { Credentials } from '@/sdk/domain/entities/credentials';
+import type { WaldeAdmin } from './walde-admin-future';
+import { Credentials } from '@/sdk/domain/entities';
 import { GetCredentials } from '@/sdk/domain/interactors/get-credentials';
 import { RefreshCredentials } from '@/sdk/domain/interactors/refresh-credentials';
-import { GetToken } from '@/sdk/domain/interactors/get-token';
-import { CognitoTokenRefreshProvider } from '@/sdk/infra/adapters/cognito-token-refresh-provider';
 import { WaldeConfigurationError, WaldeUsageError } from '@/sdk/domain/errors';
 
 /**
@@ -32,17 +30,9 @@ async function getValidCredentials(parent: WaldeAdmin): Promise<Credentials> {
       return credentials;
     }
 
-    if (!config.config.clientId) {
-      throw new WaldeConfigurationError('Cognito client ID not configured');
-    }
-
-    const tokenRefreshProvider = new CognitoTokenRefreshProvider(
-      config.config.clientId,
-      config.config.region
-    );
     const refreshInteractor = new RefreshCredentials(
       config.credentialsProvider,
-      tokenRefreshProvider
+      config.tokenRefreshProvider
     );
     return await refreshInteractor.execute();
   } else {
@@ -81,17 +71,9 @@ export class CredentialsFuture extends Future<Credentials, WaldeAdmin> {
         const credentials = await getValidCredentials(this.parent);
         return ok(credentials);
       } else if (this.operation === 'refresh') {
-        if (!config.config.clientId) {
-          throw new WaldeConfigurationError('Cognito client ID not configured');
-        }
-        
-        const tokenRefreshProvider = new CognitoTokenRefreshProvider(
-          config.config.clientId,
-          config.config.region
-        );
         const interactor = new RefreshCredentials(
           config.credentialsProvider,
-          tokenRefreshProvider
+          config.tokenRefreshProvider
         );
         const credentials = await interactor.execute();
         return ok(credentials);

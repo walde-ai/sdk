@@ -4,26 +4,67 @@ export { WaldeAdminConfigFactory } from './infra/factories/walde-admin-config-fa
 export { MakeWaldeAdmin } from './make-walde-admin';
 export { MakeWalde } from './make-walde';
 
+// WebSocket sessions
+export { WSClientSession } from './infra/sessions/ws-client-session';
+export { WaldeWSSession } from './infra/sessions/walde-ws-session';
+export type { IWaldeWSSession } from './domain/ports/in/walde-ws-session';
+export { WaldeAdmin } from './infra/futures/walde-admin-future';
+
 // Domain entities
-export { Site, SiteState, CustomDomainStatus } from './domain/entities/site';
-export type { CustomDomain, DnsEntryRequirement, DnsEntryRole } from './domain/entities/site';
+export {
+  Content,
+  ContentFormat,
+  ContentPart,
+  ContentState,
+  ContentVersion,
+  Credentials,
+  DnsEntry,
+  File,
+  Format,
+  FrontendContent,
+  KeyValuePart,
+  Manifest,
+  ManifestContent,
+  MarkdownPart,
+  Site,
+  SiteState,
+  CustomDomainStatus,
+  StringPart,
+  UiUploadCredentials,
+  WaldeAdminConfig,
+  WorkspaceConfig,
+  ProjectWorkspaceConfig,
+  MinimalProjectWorkspaceConfig,
+} from './domain/entities';
+export type {
+  FormatPart,
+  CustomDomain,
+  DnsEntryRequirement,
+  DnsEntryRole,
+  WaldeAdminConfigData,
+  PartialWaldeAdminConfigData,
+  WorkspaceUiConfig,
+  WorkspaceContentConfig,
+} from './domain/entities';
 
-export { Content } from './domain/entities/content';
-export { ContentState } from './domain/entities/content-state';
-export { WorkspaceConfig } from './domain/entities/workspace-config';
-export { FrontendContent } from './domain/entities/frontend-content';
-export { Manifest } from './domain/entities/manifest';
-export { ManifestContent } from './domain/entities/manifest-content';
-export { Credentials } from './domain/entities/credentials';
+// Cloud API entities
+export { WaldeApi } from './domain/entities/api';
+export type { WaldeApiRegistry } from './domain/entities/api';
+export type { CloudApiDeployResult } from './domain/entities/cloud-api-deploy-result';
 
-// Content parts
-export { ContentPart } from './domain/entities/content-part';
-export { MarkdownPart } from './domain/entities/markdown-part';
-export { KeyValuePart } from './domain/entities/key-value-part';
-export { StringPart } from './domain/entities/string-part';
+// Cloud API futures
+export { SiteCloudFuture } from './infra/futures/site-cloud-future';
+export { SiteCloudApiFuture } from './infra/futures/site-cloud-api-future';
+export { SiteCloudApiFileFuture } from './infra/futures/site-cloud-api-file-future';
+export { SiteCloudApiDirectoryFuture } from './infra/futures/site-cloud-api-directory-future';
+export { SiteCloudApiPushFuture } from './infra/futures/site-cloud-api-push-future';
 
-// Configuration
-export { type WaldeAdminConfigData } from './domain/entities/walde-admin-config';
+// Brief domain types
+export { Brief } from './domain/entities/brief';
+export type { BriefEnvelope, BriefState, SectionKey, BriefComment } from './domain/entities/brief';
+
+// Background task types
+export type { BackgroundTaskAgent } from '@walde.ai/ws-protocol';
 
 // Interfaces
 export type { CredentialsProvider } from './domain/ports/out/credentials-provider';

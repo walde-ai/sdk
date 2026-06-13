@@ -1,4 +1,4 @@
-import { UiUploadCredentials } from '@/sdk/domain/entities/ui-upload-credentials';
+import { UiUploadCredentials } from '@/sdk/domain/entities';
 
 /**
  * Factory interface for creating S3 clients with runtime credentials

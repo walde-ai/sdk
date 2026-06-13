@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { CredentialsProvider } from '@/sdk/domain/ports/out/credentials-provider';
-import { Credentials } from '@/sdk/domain/entities/credentials';
+import { Credentials } from '@/sdk/domain/entities';
 
 /**
  * File-based repository for user credentials

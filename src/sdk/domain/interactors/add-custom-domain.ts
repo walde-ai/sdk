@@ -1,5 +1,5 @@
 import { Result, ok, err } from '@/std';
-import { Site } from '@/sdk/domain/entities/site';
+import { Site } from '@/sdk/domain/entities';
 import { SiteRepository } from '@/sdk/domain/ports/out/site-repository';
 
 export class AddCustomDomainToSite {

@@ -1,31 +1,45 @@
 import { ContentRepo } from '@/sdk/domain/ports/out/content-repo';
-import { Content } from '@/sdk/domain/entities/content';
-import { ContentVersion } from '@/sdk/domain/entities/content-version';
-import { ContentState } from '@/sdk/domain/entities/content-state';
+import { PublishContentParams } from '@/sdk/domain/ports/out/content-repo';
+import { Content, ContentVersion, ContentState } from '@/sdk/domain/entities';
 import { ApiClient } from '@/sdk/infra/adapters/api-client';
 import { WaldeUnexpectedError } from '@/sdk/domain/errors';
 
 /**
- * Content API response format
+ * Content list API response format
  */
-interface ContentApiResponse {
+interface ContentListApiResponse {
+  contents: Array<{
+    id: string;
+    siteId: string;
+    name: string;
+    key: string;
+    state: string;
+  }>;
+}
+
+/**
+ * Content detail API response format
+ */
+interface ContentDetailApiResponse {
   id: string;
   siteId: string;
   name: string;
   key: string;
   state: string;
-  version: {
-    id: string;
-    contentId: string;
-    name: string;
-    key: string;
-    format: {
-      id: string;
-      name: string;
-    };
-    parts: Record<string, { data: any }>;
-    apiVersion: string;
-  };
+  locale: string;
+  availableLocales: string[];
+  latestVersion: object | null;
+}
+
+/**
+ * Content API response format for push
+ */
+interface ContentPushApiResponse {
+  id: string;
+  siteId: string;
+  name: string;
+  key: string;
+  state: string;
 }
 
 /**
@@ -37,10 +51,55 @@ export class HttpContentRepo implements ContentRepo {
   ) {}
 
   /**
-   * Lists contents for a site
+   * Lists contents for a site using the site-scoped endpoint
    */
   public async list(siteId: string): Promise<Content[]> {
-    return this.getAll(siteId);
+    try {
+      const response = await this.apiClient.get<ContentListApiResponse>(`/v1/sites/${siteId}/contents`);
+
+      return response.contents.map((item) => new Content(
+        item.id,
+        item.siteId,
+        item.name,
+        item.key,
+        item.state as ContentState
+      ));
+    } catch (error) {
+      throw new WaldeUnexpectedError('Failed to list contents', error as Error);
+    }
+  }
+
+  /**
+   * Gets a single content item with its version for the given locale
+   */
+  public async get(contentId: string, locale: string): Promise<{
+    id: string;
+    siteId: string;
+    name: string;
+    key: string;
+    state: string;
+    locale: string;
+    availableLocales: string[];
+    latestVersion: object | null;
+  }> {
+    try {
+      const response = await this.apiClient.get<ContentDetailApiResponse>(
+        `/v1/contents/${contentId}?locale=${encodeURIComponent(locale)}`
+      );
+
+      return {
+        id: response.id,
+        siteId: response.siteId,
+        name: response.name,
+        key: response.key,
+        state: response.state,
+        locale: response.locale,
+        availableLocales: response.availableLocales,
+        latestVersion: response.latestVersion
+      };
+    } catch (error) {
+      throw new WaldeUnexpectedError('Failed to get content', error as Error);
+    }
   }
 
   /**
@@ -68,7 +127,7 @@ export class HttpContentRepo implements ContentRepo {
       const endpoint = content.id ? `/v1/contents/${content.id}` : '/v1/contents';
       
       // ApiClient automatically extracts payload from standard response format
-      const response = await this.apiClient.post<ContentApiResponse>(endpoint, payload);
+      const response = await this.apiClient.post<ContentPushApiResponse>(endpoint, payload);
       
       // Return updated Content with ID from response payload
       return new Content(
@@ -81,37 +140,6 @@ export class HttpContentRepo implements ContentRepo {
     } catch (error) {
       // Preserve the original error with response data
       throw error;
-    }
-  }
-
-  /**
-   * Gets all contents, optionally filtered by site
-   * @param siteId - Optional site identifier to filter by
-   * @returns Promise resolving to array of contents
-   */
-  public async getAll(siteId?: string): Promise<Content[]> {
-    try {
-      // Backend returns all content regardless of siteId parameter, so just get all
-      const response = await this.apiClient.get<ContentApiResponse[]>('/v1/contents');
-      
-      // Map API response to Content entities
-      const allContents = response.map(item => new Content(
-        item.id,
-        item.siteId,
-        item.name,
-        item.key,
-        item.state as ContentState
-      ));
-      
-      // Client-side filtering by siteId if provided
-      if (siteId) {
-        return allContents.filter(content => content.siteId === siteId);
-      }
-      
-      // Return all contents if no siteId filter
-      return allContents;
-    } catch (error) {
-      throw new WaldeUnexpectedError('Failed to get contents', error as Error);
     }
   }
 
@@ -129,5 +157,23 @@ export class HttpContentRepo implements ContentRepo {
     }
     
     return result;
+  }
+
+  public async publishContent(params: PublishContentParams): Promise<{ id: string }> {
+    const payload = {
+      name: params.name,
+      key: params.key,
+      siteId: params.siteId,
+      state: 'PUBLISHED',
+      locale: params.locale,
+      format: { id: 'native:post:v01' },
+      parts: {
+        body: { data: params.body, format: 'markdown' },
+        metadata: { data: {}, format: 'key-value' },
+      },
+    };
+    const endpoint = params.contentId ? `/v1/contents/${params.contentId}` : '/v1/contents';
+    const response = await this.apiClient.post<{ id: string }>(endpoint, payload);
+    return { id: response.id };
   }
 }

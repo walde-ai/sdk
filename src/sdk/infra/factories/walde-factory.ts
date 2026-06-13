@@ -1,8 +1,8 @@
-import { FrontendHttpClient } from '@/sdk/infra/adapters/frontend-http-client';
-import { ManifestDtoMapper } from '@/sdk/infra/mappers/dto/manifest-dto-mapper';
-import { FrontendContentDtoMapper } from '@/sdk/infra/mappers/dto/frontend-content-dto-mapper';
-import { WaldeFuture } from '@/sdk/infra/futures/walde-future';
 import { WaldeConfigurationError } from '@/sdk/domain/errors';
+import { FrontendHttpClient } from '../adapters/frontend-http-client';
+import { WaldeFuture } from '../futures/walde-future';
+import { FrontendContentDtoMapper } from '../mappers/dto/frontend-content-dto-mapper';
+import { ManifestDtoMapper } from '../mappers/dto/manifest-dto-mapper';
 
 const BROWSER_CONTENT_PATH = '/_walde/content';
 
@@ -14,15 +14,17 @@ export class WaldeFactory {
    * Create a Walde instance with all dependencies
    */
   static create(config?: { url?: string }): WaldeFuture {
-    const baseUrl = WaldeFactory.resolveBaseUrl(config?.url);
-    const httpClient = new FrontendHttpClient(baseUrl);
+    const contentBaseUrl = WaldeFactory.resolveContentBaseUrl(config?.url);
+    const siteBaseUrl = WaldeFactory.resolveSiteBaseUrl(config?.url);
+    const httpClient = new FrontendHttpClient(contentBaseUrl);
+    const cloudHttpClient = new FrontendHttpClient(siteBaseUrl);
     const manifestMapper = new ManifestDtoMapper();
     const contentMapper = new FrontendContentDtoMapper();
 
-    return new WaldeFuture(httpClient, manifestMapper, contentMapper);
+    return new WaldeFuture(httpClient, cloudHttpClient, manifestMapper, contentMapper);
   }
 
-  private static resolveBaseUrl(url?: string): string {
+  private static resolveContentBaseUrl(url?: string): string {
     if (url) {
       if (!url.includes(BROWSER_CONTENT_PATH)) {
         const normalized = url.endsWith('/') ? url.slice(0, -1) : url;
@@ -32,6 +34,22 @@ export class WaldeFactory {
     }
     if (typeof window !== 'undefined') {
       return `${window.location.origin}${BROWSER_CONTENT_PATH}`;
+    }
+    throw new WaldeConfigurationError(
+      `A URL is required when using MakeWalde outside the browser. Provide a url in the config: MakeWalde({ url: "https://your-site.example.com${BROWSER_CONTENT_PATH}" })`
+    );
+  }
+
+  private static resolveSiteBaseUrl(url?: string): string {
+    if (url) {
+      const normalized = url.endsWith('/') ? url.slice(0, -1) : url;
+      if (normalized.endsWith(BROWSER_CONTENT_PATH)) {
+        return normalized.slice(0, normalized.length - BROWSER_CONTENT_PATH.length);
+      }
+      return normalized;
+    }
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
     }
     throw new WaldeConfigurationError(
       `A URL is required when using MakeWalde outside the browser. Provide a url in the config: MakeWalde({ url: "https://your-site.example.com${BROWSER_CONTENT_PATH}" })`

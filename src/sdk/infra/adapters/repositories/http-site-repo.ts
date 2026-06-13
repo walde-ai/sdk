@@ -1,6 +1,7 @@
 import { SiteRepository, CertificateAssociationsResult, CertificateAssociation } from '@/sdk/domain/ports/out/site-repository';
-import { Site, SiteState, CustomDomain } from '@/sdk/domain/entities/site';
+import { Site, SiteState, CustomDomain } from '@/sdk/domain/entities';
 import { ApiClient } from '@/sdk/infra/adapters/api-client';
+import { type Option, some, none } from '@/std';
 
 interface SiteListResponse {
   sites: SiteApiData[];
@@ -76,12 +77,13 @@ export class HttpSiteRepository implements SiteRepository {
   }
 
   private mapSiteData(siteData: SiteApiData): Site {
+    const url: Option<string> = siteData.url ? some(siteData.url) : none();
     return new Site(
       siteData.id,
       siteData.name,
       siteData.state,
       siteData.region,
-      siteData.url ?? null,
+      url,
       siteData.customDomains ?? [],
       siteData.createdAt ?? null
     );

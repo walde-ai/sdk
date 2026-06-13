@@ -7,8 +7,8 @@ interface JwtPayload {
 }
 
 /**
- * Decode the payload of a JWT without verification
- * NOTE: Uses Node.js Buffer API - this file is only used in Node.js context (admin SDK)
+ * Decode the payload of a JWT without verification.
+ * Uses atob() which is available in both Node.js (v16+) and browsers.
  * @param token JWT token string
  * @returns Decoded payload or null if invalid
  */
@@ -24,8 +24,8 @@ function decodeJwtPayload(token: string): JwtPayload | null {
     const padding = '='.repeat((4 - base64.length % 4) % 4);
     const base64WithPadding = base64 + padding;
     
-    // Decode base64 to string (Buffer is Node.js only - acceptable since credentials are admin-only)
-    const jsonPayload = Buffer.from(base64WithPadding, 'base64').toString('utf-8');
+    // Decode base64 to string using atob() (available in Node.js v16+ and all browsers)
+    const jsonPayload = atob(base64WithPadding);
     return JSON.parse(jsonPayload);
   } catch (error) {
     return null;

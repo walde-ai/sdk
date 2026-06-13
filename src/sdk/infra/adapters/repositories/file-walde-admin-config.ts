@@ -1,4 +1,4 @@
-import { WaldeAdminConfig, PartialWaldeAdminConfigData } from '@/sdk/domain/entities/walde-admin-config';
+import { WaldeAdminConfig, PartialWaldeAdminConfigData } from '@/sdk/domain/entities';
 import * as fs from 'fs';
 
 /**
@@ -20,6 +20,7 @@ export class FileWaldeAdminConfig extends WaldeAdminConfig {
         const configData = JSON.parse(fileContent);
         this.data = {
           endpoint: configData.endpoint,
+          wsEndpoint: configData.wsEndpoint,
           clientId: configData.clientId,
           region: configData.region,
           userPoolId: configData.userPoolId

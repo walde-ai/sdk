@@ -1,13 +1,22 @@
-import { readdir, readFile, stat } from 'fs/promises';
+import { access, readdir, readFile, stat } from 'fs/promises';
 import { join, relative } from 'path';
 
-import { File } from '@/sdk/domain/entities/file';
+import { File } from '@/sdk/domain/entities';
 import { FileSystemReader } from '@/sdk/domain/ports/out/file-system-reader';
 import { WaldeLocalError } from '@/sdk/domain/errors';
 
 export class AssetLocalFilesReader implements FileSystemReader {
   public async readAllFiles(directoryPath: string): Promise<File[]> {
     const files: File[] = [];
+    // A missing assets directory is treated as "no assets" rather than an error,
+    // mirroring how content reading tolerates an absent folder. This keeps
+    // `walde push` from aborting (and skipping cache invalidation) on projects
+    // that have no assets folder.
+    try {
+      await access(directoryPath);
+    } catch {
+      return files;
+    }
     await this.readDirectoryRecursive(directoryPath, directoryPath, files);
     return files;
   }

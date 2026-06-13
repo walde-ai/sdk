@@ -1,6 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { S3ClientFactory } from '@/sdk/domain/ports/out/s3-client-factory';
-import { UiUploadCredentials } from '@/sdk/domain/entities/ui-upload-credentials';
+import { UiUploadCredentials } from '@/sdk/domain/entities';
 
 /**
  * AWS implementation of S3ClientFactory that creates real S3Client instances

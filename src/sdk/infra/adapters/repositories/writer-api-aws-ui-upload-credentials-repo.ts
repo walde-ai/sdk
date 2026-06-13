@@ -1,5 +1,5 @@
 import { UiUploadCredentialsRepo } from '@/sdk/domain/ports/out/ui-upload-credentials-repo';
-import { UiUploadCredentials } from '@/sdk/domain/entities/ui-upload-credentials';
+import { UiUploadCredentials } from '@/sdk/domain/entities';
 import { ApiClient } from '@/sdk/infra/adapters/api-client';
 import { WaldeUnexpectedError } from '@/sdk/domain/errors';
 

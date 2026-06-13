@@ -1,4 +1,4 @@
-import { Site } from '@/sdk/domain/entities/site';
+import { Site } from '@/sdk/domain/entities';
 
 /**
  * Certificate association result

@@ -1,8 +1,7 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { RemoteFilesRepo } from '@/sdk/domain/ports/out/remote-files-repo';
 import { S3ClientFactory } from '@/sdk/domain/ports/out/s3-client-factory';
-import { File } from '@/sdk/domain/entities/file';
-import { UiUploadCredentials } from '@/sdk/domain/entities/ui-upload-credentials';
+import { File, UiUploadCredentials } from '@/sdk/domain/entities';
 import { WaldeLocalError } from '@/sdk/domain/errors';
 
 /**

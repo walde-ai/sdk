@@ -1,4 +1,4 @@
-import { Content } from '@/sdk/domain/entities/content';
+import { Content } from '@/sdk/domain/entities';
 import { ContentRepo } from '@/sdk/domain/ports/out/content-repo';
 import { ContentFileReader } from '@/sdk/domain/ports/in/content-file-reader';
 import { ContentFileWriter } from '@/sdk/domain/ports/out/content-file-writer';

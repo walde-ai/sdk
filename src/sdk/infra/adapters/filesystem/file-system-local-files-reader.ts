@@ -1,6 +1,6 @@
 import { readdir, readFile, stat } from 'fs/promises';
 import { join, relative } from 'path';
-import { File } from '@/sdk/domain/entities/file';
+import { File } from '@/sdk/domain/entities';
 import { FileSystemReader } from '@/sdk/domain/ports/out/file-system-reader';
 import { WaldeLocalError } from '@/sdk/domain/errors';
 

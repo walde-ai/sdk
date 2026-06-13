@@ -1,5 +1,5 @@
 import { Future, Result } from '@/std';
-import { WaldeAdmin } from './walde-admin-future';
+import type { WaldeAdmin } from './walde-admin-future';
 import { CacheInvalidationRepo } from '@/sdk/domain/ports/out/cache-invalidation-repo';
 import { InvalidateCache } from '@/sdk/domain/interactors/invalidate-cache';
 

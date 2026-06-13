@@ -6,6 +6,7 @@ import { S3ClientFactory } from '@/sdk/domain/ports/out/s3-client-factory';
  */
 export interface PartialWaldeAdminConfigData {
   endpoint?: string;
+  wsEndpoint?: string;
   clientId?: string;
   region?: string;
   userPoolId?: string;
@@ -17,6 +18,7 @@ export interface PartialWaldeAdminConfigData {
  */
 export interface WaldeAdminConfigData {
   endpoint: string;
+  wsEndpoint: string;
   clientId: string;
   region: string;
   userPoolId: string;
@@ -48,6 +50,10 @@ export abstract class WaldeAdminConfig {
     return this.data.region;
   }
 
+  get wsEndpoint(): string | undefined {
+    return this.data.wsEndpoint;
+  }
+
   get userPoolId(): string | undefined {
     return this.data.userPoolId;
   }
@@ -63,6 +69,7 @@ export abstract class WaldeAdminConfig {
     const otherData = other.getData();
     const mergedData: PartialWaldeAdminConfigData = {
       endpoint: this.data.endpoint ?? otherData.endpoint,
+      wsEndpoint: this.data.wsEndpoint ?? otherData.wsEndpoint,
       clientId: this.data.clientId ?? otherData.clientId,
       region: this.data.region ?? otherData.region,
       userPoolId: this.data.userPoolId ?? otherData.userPoolId,
@@ -93,6 +100,7 @@ export abstract class WaldeAdminConfig {
     const missing: string[] = [];
     
     if (!this.data.endpoint) missing.push('endpoint');
+    if (!this.data.wsEndpoint) missing.push('wsEndpoint');
     if (!this.data.clientId) missing.push('clientId');
     if (!this.data.region) missing.push('region');
     if (!this.data.userPoolId) missing.push('userPoolId');
@@ -103,6 +111,7 @@ export abstract class WaldeAdminConfig {
     
     return ok({
       endpoint: this.data.endpoint!,
+      wsEndpoint: this.data.wsEndpoint!,
       clientId: this.data.clientId!,
       region: this.data.region!,
       userPoolId: this.data.userPoolId!,

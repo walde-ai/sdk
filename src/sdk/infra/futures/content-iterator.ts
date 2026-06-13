@@ -1,11 +1,7 @@
-import { readdir, stat } from 'fs/promises';
-import { join, extname } from 'path';
 import { Future, ok, err, some, none } from '@/std';
 import type { Result, Option } from '@/std';
-import { Content } from '@/sdk/domain/entities/content';
+import { Content } from '@/sdk/domain/entities';
 import { PushContent } from '@/sdk/domain/interactors/content/push-content';
-import { FileContentReader } from '@/sdk/infra/adapters/filesystem/file-content-reader';
-import { FileContentWriter } from '@/sdk/infra/adapters/filesystem/file-content-writer';
 
 export interface ContentIteratorParams {
   parent: any;
@@ -45,6 +41,8 @@ export class ContentIterator extends Future<ContentResult[], ContentIteratorPara
    * Scan folder for markdown files
    */
   private async scanFolder(folderPath: string): Promise<string[]> {
+    const { readdir, stat } = await import('fs/promises');
+    const { join, extname } = await import('path');
     const files: string[] = [];
     
     try {
@@ -84,6 +82,8 @@ export class ContentIterator extends Future<ContentResult[], ContentIteratorPara
           
           const filePath = this.iterator.files[this.iterator.currentIndex++];
           const config = this.iterator.params.parent.getConfig();
+          const { FileContentReader } = await import('@/sdk/infra/adapters/filesystem/file-content-reader');
+          const { FileContentWriter } = await import('@/sdk/infra/adapters/filesystem/file-content-writer');
           const contentFileReader = new FileContentReader();
           const contentFileWriter = new FileContentWriter();
           const pushContent = new PushContent(
@@ -110,7 +110,6 @@ export class ContentIterator extends Future<ContentResult[], ContentIteratorPara
     newIterator.currentIndex = this.currentIndex;
     newIterator.initialized = this.initialized;
     
-    // Update internal state to process 'count' files
     newIterator.currentIndex = Math.min(this.currentIndex + count, this.files.length);
     this.currentIndex = newIterator.currentIndex;
     
@@ -126,6 +125,8 @@ export class ContentIterator extends Future<ContentResult[], ContentIteratorPara
       
       const results: ContentResult[] = [];
       const config = this.params.parent.getConfig();
+      const { FileContentReader } = await import('@/sdk/infra/adapters/filesystem/file-content-reader');
+      const { FileContentWriter } = await import('@/sdk/infra/adapters/filesystem/file-content-writer');
       const contentFileReader = new FileContentReader();
       const contentFileWriter = new FileContentWriter();
       const pushContent = new PushContent(
@@ -145,7 +146,6 @@ export class ContentIterator extends Future<ContentResult[], ContentIteratorPara
           this.params.onProgress(current, this.files.length, filePath, true);
         } catch (error) {
           this.params.onProgress(current, this.files.length, filePath, false, error as Error);
-          // Continue processing other files even if one fails
         }
       }
       

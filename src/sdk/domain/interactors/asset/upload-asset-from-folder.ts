@@ -1,6 +1,6 @@
 import { Result, ok, err } from '@/std';
 
-import { File } from '@/sdk/domain/entities/file';
+import { File } from '@/sdk/domain/entities';
 import { AssetUploadCredentialsRepo } from '@/sdk/domain/ports/out/asset-upload-credentials-repo';
 import { RemoteFilesRepo } from '@/sdk/domain/ports/out/remote-files-repo';
 import { WaldeUnexpectedError } from '@/sdk/domain/errors';

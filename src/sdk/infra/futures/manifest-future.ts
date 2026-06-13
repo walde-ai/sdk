@@ -1,6 +1,6 @@
 import { Future } from '@/std/domain/entities/future';
 import { Result, ok, err } from '@/std/domain/entities/result';
-import { Manifest } from '@/sdk/domain/entities/manifest';
+import { Manifest } from '@/sdk/domain/entities';
 import { FrontendHttpClient } from '@/sdk/infra/adapters/frontend-http-client';
 import { ManifestDtoMapper } from '@/sdk/infra/mappers/dto/manifest-dto-mapper';
 

@@ -1,4 +1,4 @@
-import { UiUploadCredentials } from '@/sdk/domain/entities/ui-upload-credentials';
+import { UiUploadCredentials } from '@/sdk/domain/entities';
 
 /**
  * Repository interface for requesting UI upload credentials

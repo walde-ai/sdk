@@ -1,6 +1,6 @@
 import { Future } from '@/std/domain/entities/future';
 import { Result, ok, err } from '@/std/domain/entities/result';
-import { ManifestContent } from '@/sdk/domain/entities/manifest-content';
+import { ManifestContent } from '@/sdk/domain/entities';
 import { ManifestFuture } from './manifest-future';
 
 /**

@@ -1,5 +1,4 @@
-import { Manifest } from '@/sdk/domain/entities/manifest';
-import { ManifestContent } from '@/sdk/domain/entities/manifest-content';
+import { Manifest, ManifestContent } from '@/sdk/domain/entities';
 import { ManifestV1 } from '@/sdk/contracts/manifest/v1/manifest-v1';
 import { ManifestContentV1 } from '@/sdk/contracts/manifest/v1/manifest-content-v1';
 import { WaldeUnexpectedError } from '@/sdk/domain/errors';

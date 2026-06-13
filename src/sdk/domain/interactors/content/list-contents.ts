@@ -1,4 +1,4 @@
-import { Content } from '@/sdk/domain/entities/content';
+import { Content } from '@/sdk/domain/entities';
 import { ContentRepo } from '@/sdk/domain/ports/out/content-repo';
 
 /**

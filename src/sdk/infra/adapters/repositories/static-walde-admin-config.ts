@@ -1,4 +1,4 @@
-import { WaldeAdminConfig, PartialWaldeAdminConfigData } from '@/sdk/domain/entities/walde-admin-config';
+import { WaldeAdminConfig, PartialWaldeAdminConfigData } from '@/sdk/domain/entities';
 
 /**
  * Static configuration implementation

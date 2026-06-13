@@ -1,3 +1,5 @@
+import { type Option, none } from '@/std';
+
 export enum SiteState {
   UPDATED = 'UPDATED',
   UPDATE_REQUESTED = 'UPDATE_REQUESTED',
@@ -36,7 +38,7 @@ export class Site {
     public readonly name: string,
     public readonly state: SiteState,
     public readonly region?: string,
-    public readonly url: string | null = null,
+    public readonly url: Option<string> = none(),
     public readonly customDomains: CustomDomain[] = [],
     public readonly createdAt: string | null = null
   ) {}

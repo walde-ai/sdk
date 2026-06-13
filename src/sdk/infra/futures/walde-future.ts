@@ -5,6 +5,7 @@ import { ManifestDtoMapper } from '@/sdk/infra/mappers/dto/manifest-dto-mapper';
 import { FrontendContentDtoMapper } from '@/sdk/infra/mappers/dto/frontend-content-dto-mapper';
 import { ManifestFuture } from './manifest-future';
 import { FrontendContentsFuture } from './frontend-contents-future';
+import { CloudFuture } from './cloud-api-future';
 
 /**
  * Main Walde future class for frontend SDK operations
@@ -12,6 +13,7 @@ import { FrontendContentsFuture } from './frontend-contents-future';
 export class WaldeFuture extends Future<WaldeFuture, never> {
   constructor(
     private readonly httpClient: FrontendHttpClient,
+    private readonly cloudHttpClient: FrontendHttpClient,
     private readonly manifestMapper: ManifestDtoMapper,
     private readonly contentMapper: FrontendContentDtoMapper
   ) {
@@ -38,5 +40,14 @@ export class WaldeFuture extends Future<WaldeFuture, never> {
   contents(): FrontendContentsFuture {
     const manifestFuture = this.manifest();
     return new FrontendContentsFuture(manifestFuture, this.httpClient, this.contentMapper);
+  }
+
+  /**
+   * Access user-defined cloud API endpoints.
+   * Returns a CloudFuture whose api() method exposes all APIs registered
+   * via WaldeApiRegistry.
+   */
+  cloud(): CloudFuture {
+    return new CloudFuture(this.cloudHttpClient);
   }
 }

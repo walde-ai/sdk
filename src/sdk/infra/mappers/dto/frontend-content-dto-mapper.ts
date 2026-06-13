@@ -1,10 +1,4 @@
-import { FrontendContent } from '@/sdk/domain/entities/frontend-content';
-import { ContentFormat } from '@/sdk/domain/entities/content-format';
-import { ContentPart } from '@/sdk/domain/entities/content-part';
-import { FormatPart } from '@/sdk/domain/entities/format-part';
-import { MarkdownPart } from '@/sdk/domain/entities/markdown-part';
-import { KeyValuePart } from '@/sdk/domain/entities/key-value-part';
-import { StringPart } from '@/sdk/domain/entities/string-part';
+import { FrontendContent, ContentFormat, ContentPart, FormatPart, MarkdownPart, KeyValuePart, StringPart } from '@/sdk/domain/entities';
 import { FrontendContentV1 } from '@/sdk/contracts/frontend-content/v1/frontend-content-v1';
 import { ContentFormatV1 } from '@/sdk/contracts/frontend-content/v1/content-format-v1';
 import { ContentPartV1 } from '@/sdk/contracts/frontend-content/v1/content-part-v1';

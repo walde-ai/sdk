@@ -1,10 +1,8 @@
 import { Future, ok, err } from '@/std';
 import type { Result } from '@/std';
-import { Content } from '@/sdk/domain/entities/content';
+import { Content } from '@/sdk/domain/entities';
 import { ListContents } from '@/sdk/domain/interactors/content/list-contents';
 import { PushContent } from '@/sdk/domain/interactors/content/push-content';
-import { FileContentReader } from '@/sdk/infra/adapters/filesystem/file-content-reader';
-import { FileContentWriter } from '@/sdk/infra/adapters/filesystem/file-content-writer';
 import { WaldeValidationError } from '@/sdk/domain/errors';
 
 export interface ContentParams {
@@ -41,7 +39,8 @@ export class ContentFuture extends Future<Content, ContentParams> {
       const config = this.params.parent.getConfig();
       
       if (this.params.filePath) {
-        // Push from file - create file adapters
+        const { FileContentReader } = await import('@/sdk/infra/adapters/filesystem/file-content-reader');
+        const { FileContentWriter } = await import('@/sdk/infra/adapters/filesystem/file-content-writer');
         const contentFileReader = new FileContentReader();
         const contentFileWriter = new FileContentWriter();
         const pushContent = new PushContent(
@@ -52,7 +51,6 @@ export class ContentFuture extends Future<Content, ContentParams> {
         const result = await pushContent.execute(this.params.siteId, this.params.filePath);
         return ok(result);
       } else if (this.params.contentData) {
-        // Push content data
         if (!this.params.contentData.name) {
           return err(new WaldeValidationError('Content name is required'));
         }

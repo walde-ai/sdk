@@ -3,8 +3,7 @@ import { Future, Result, ok, err } from '@/std';
 import { AssetUploadCredentialsRepo } from '@/sdk/domain/ports/out/asset-upload-credentials-repo';
 import { AssetS3FilesRepoFactory } from '@/sdk/domain/interactors/asset/upload-asset-from-folder';
 import { WaldeUnexpectedError } from '@/sdk/domain/errors';
-import { readFile } from 'fs/promises';
-import { File } from '@/sdk/domain/entities/file';
+import { File } from '@/sdk/domain/entities';
 
 export interface AssetFutureParams {
   parent: any;
@@ -32,6 +31,7 @@ export class AssetFuture extends Future<void, AssetFutureParams> {
       if (!this.params.filePath) {
         return err(new WaldeUnexpectedError('No file path specified for asset upload', new Error('filePath is required')));
       }
+      const { readFile } = await import('fs/promises');
       const content = await readFile(this.params.filePath);
       const file = new File(this.params.assetKey, content);
       const credentials = await this.params.assetUploadCredentialsRepo.requestCredentials(this.params.siteId);

@@ -1,6 +1,6 @@
 import { Future, Result, ok, err } from '@/std';
-import { WaldeAdmin } from './walde-admin-future';
-import { Site, SiteState } from '@/sdk/domain/entities/site';
+import type { WaldeAdmin } from './walde-admin-future';
+import { Site, SiteState } from '@/sdk/domain/entities';
 import { CreateSite } from '@/sdk/domain/interactors/create-site';
 import { DeleteSite } from '@/sdk/domain/interactors/delete-site';
 import { AddCustomDomainToSite } from '@/sdk/domain/interactors/add-custom-domain';
@@ -14,13 +14,14 @@ import { AssetFuture } from './asset-future';
 import { AssetUploadFolderFuture } from './asset-upload-folder-future';
 import { CacheInvalidationFuture } from './cache-invalidation-future';
 import { WaldeConfigurationError } from '@/sdk/domain/errors';
+import { SiteCloudFuture } from './site-cloud-future';
 
 const DEFAULT_READY_TIMEOUT_MS = 10 * 60 * 1000;
 const INITIAL_POLL_INTERVAL_MS = 1000;
 const MAX_POLL_INTERVAL_MS = 180 * 1000;
 
 export class SiteFuture extends Future<Site, WaldeAdmin> {
-  private operation: 'create' | 'associateCertificates' | 'addCustomDomain' | 'ready' | 'delete' | 'awaitDeleted' | null = null;
+  private operation: 'create' | 'associateCertificates' | 'addCustomDomain' | 'ready' | 'delete' | 'awaitDeleted' | 'get' | null = null;
   private name?: string;
   private region?: string;
   private siteId?: string;
@@ -79,6 +80,16 @@ export class SiteFuture extends Future<Site, WaldeAdmin> {
     future.operation = 'awaitDeleted';
     future.siteId = this.siteId;
     future.readyTimeoutMs = params?.timeoutMs ?? DEFAULT_READY_TIMEOUT_MS;
+    return future;
+  }
+
+  get(): SiteFuture {
+    if (!this.siteId) {
+      throw new WaldeConfigurationError('Site ID required for get operation');
+    }
+    const future = new SiteFuture({ parent: this.parent, sitesRepo: this.sitesRepo });
+    future.operation = 'get';
+    future.siteId = this.siteId;
     return future;
   }
 
@@ -185,6 +196,16 @@ export class SiteFuture extends Future<Site, WaldeAdmin> {
     });
   }
 
+  cloud(): SiteCloudFuture {
+    if (!this.siteId) {
+      throw new WaldeConfigurationError('Site ID required for cloud operations');
+    }
+    return new SiteCloudFuture({
+      parent: this.parent,
+      siteId: this.siteId,
+    });
+  }
+
   async resolve(): Promise<Result<Site, string>> {
     if (!this.operation) {
       return err('No operation specified');
@@ -236,6 +257,13 @@ export class SiteFuture extends Future<Site, WaldeAdmin> {
           return err('Site ID required for awaitDeleted operation');
         }
         return await this.pollUntilDeleted(this.siteId, this.readyTimeoutMs);
+      }
+      case 'get': {
+        if (!this.siteId) {
+          return err('Site ID required for get operation');
+        }
+        const site = await this.sitesRepo.get(this.siteId);
+        return ok(site);
       }
       default:
         return err(`Unknown operation: ${this.operation}`);

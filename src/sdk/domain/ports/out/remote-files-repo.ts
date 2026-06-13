@@ -1,5 +1,4 @@
-import { File } from '@/sdk/domain/entities/file';
-import { UiUploadCredentials } from '@/sdk/domain/entities/ui-upload-credentials';
+import { File, UiUploadCredentials } from '@/sdk/domain/entities';
 
 /**
  * Port for uploading files to remote storage

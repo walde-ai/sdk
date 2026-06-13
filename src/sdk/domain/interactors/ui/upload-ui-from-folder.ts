@@ -1,6 +1,5 @@
 import { Result, ok, err } from '@/std';
-import { File } from '@/sdk/domain/entities/file';
-import { UiUploadCredentials } from '@/sdk/domain/entities/ui-upload-credentials';
+import { File, UiUploadCredentials } from '@/sdk/domain/entities';
 import { UiUploadCredentialsRepo } from '@/sdk/domain/ports/out/ui-upload-credentials-repo';
 import { RemoteFilesRepo } from '@/sdk/domain/ports/out/remote-files-repo';
 import { WaldeUnexpectedError, WaldeSystemError } from '@/sdk/domain/errors';

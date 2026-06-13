@@ -1,4 +1,4 @@
-import { Credentials } from '@/sdk/domain/entities/credentials';
+import { Credentials } from '@/sdk/domain/entities';
 
 /**
  * Provider interface for user credentials

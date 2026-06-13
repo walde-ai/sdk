@@ -1,11 +1,4 @@
-import { Content } from '@/sdk/domain/entities/content';
-import { ContentVersion } from '@/sdk/domain/entities/content-version';
-import { ContentState } from '@/sdk/domain/entities/content-state';
-import { Format } from '@/sdk/domain/entities/format';
-import { ContentPart } from '@/sdk/domain/entities/content-part';
-import { FormatPart } from '@/sdk/domain/entities/format-part';
-import { KeyValuePart } from '@/sdk/domain/entities/key-value-part';
-import { MarkdownPart } from '@/sdk/domain/entities/markdown-part';
+import { Content, ContentVersion, ContentState, Format, ContentPart, FormatPart, KeyValuePart, MarkdownPart } from '@/sdk/domain/entities';
 import { WaldeValidationError } from '@/sdk/domain/errors';
 
 /**

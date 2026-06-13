@@ -1,7 +1,7 @@
 import { Future, Result, ok, err } from '@/std';
 import { ApiCall, ApiCallParams } from '@/sdk/domain/interactors/api-call';
 import { BackendCommunication } from '@/sdk/domain/ports/out/backend-communication';
-import { WaldeAdmin } from './walde-admin-future';
+import type { WaldeAdmin } from './walde-admin-future';
 
 export class ApiFuture extends Future<any, WaldeAdmin> {
   private apiCall: ApiCall;

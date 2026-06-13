@@ -1,4 +1,4 @@
-import { WaldeAdminConfigData, PartialWaldeAdminConfigData, WaldeAdminConfig } from '@/sdk/domain/entities/walde-admin-config';
+import { WaldeAdminConfigData, PartialWaldeAdminConfigData, WaldeAdminConfig } from '@/sdk/domain/entities';
 import { StaticWaldeAdminConfig } from '@/sdk/infra/adapters/repositories/static-walde-admin-config';
 import { FileWaldeAdminConfig } from '@/sdk/infra/adapters/repositories/file-walde-admin-config';
 import { DefaultWaldeAdminConfig } from '@/sdk/infra/adapters/repositories/default-walde-admin-config';
@@ -81,11 +81,20 @@ export class WaldeAdminConfigFactory {
   }
 
   /**
-   * Load and merge configuration from all sources with stage support
+   * Load and merge configuration from all sources with stage support.
+   *
+   * `providedConfig` is the highest-priority layer and is intended to
+   * carry environment-variable overrides supplied by the composition
+   * root (e.g. the CLI's entry point reading the API endpoint env var).
+   * Reading runtime environment values directly inside this factory
+   * would couple the SDK library to its runtime environment; instead
+   * the caller is expected to pass any env-derived overrides
+   * explicitly. This matches the 12-factor principle that environment
+   * variables take precedence over file-based configuration.
    */
   public static create(providedConfig: PartialWaldeAdminConfigData = {}, stage?: string): WaldeAdminConfigData {
     // Merge configs: provided > workspace > home > default
-    let finalConfig = (new StaticWaldeAdminConfig(providedConfig))
+    let finalConfig = new StaticWaldeAdminConfig(providedConfig)
       .merge(this.getWorkspaceConfig(stage))
       .merge(this.getHomeConfig(stage))
       .merge(DefaultWaldeAdminConfig.create());

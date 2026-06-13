@@ -2,7 +2,6 @@ import { Future, Result, err } from '@/std';
 
 import { AssetUploadCredentialsRepo } from '@/sdk/domain/ports/out/asset-upload-credentials-repo';
 import { AssetS3FilesRepoFactory, UploadAssetFromFolder } from '@/sdk/domain/interactors/asset/upload-asset-from-folder';
-import { AssetLocalFilesReader } from '@/sdk/infra/adapters/filesystem/asset-local-files-reader';
 import { WaldeUnexpectedError } from '@/sdk/domain/errors';
 
 export interface AssetUploadFolderFutureParams {
@@ -22,6 +21,7 @@ export class AssetUploadFolderFuture extends Future<void, AssetUploadFolderFutur
   async resolve(): Promise<Result<void, Error>> {
     try {
       const params = this.params;
+      const { AssetLocalFilesReader } = await import('@/sdk/infra/adapters/filesystem/asset-local-files-reader');
       const fileSystemReader = new AssetLocalFilesReader();
       const files = await fileSystemReader.readAllFiles(params.uploadPath);
       const uploadInteractor = new UploadAssetFromFolder(params.assetUploadCredentialsRepo, params.s3AssetFilesRepoFactory);

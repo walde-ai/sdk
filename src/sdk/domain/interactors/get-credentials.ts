@@ -1,5 +1,5 @@
 import { CredentialsProvider } from '@/sdk/domain/ports/out/credentials-provider';
-import { Credentials } from '@/sdk/domain/entities/credentials';
+import { Credentials } from '@/sdk/domain/entities';
 
 /**
  * Interactor for retrieving credentials

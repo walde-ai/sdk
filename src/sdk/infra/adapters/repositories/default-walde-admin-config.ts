@@ -1,5 +1,5 @@
 import { StaticWaldeAdminConfig } from './static-walde-admin-config';
-import { WaldeAdminConfigData, PartialWaldeAdminConfigData } from '@/sdk/domain/entities/walde-admin-config';
+import { WaldeAdminConfigData, PartialWaldeAdminConfigData } from '@/sdk/domain/entities';
 import { AwsS3ClientFactory } from '@/sdk/infra/adapters/aws-s3-client-factory';
 
 /**
@@ -12,6 +12,7 @@ export class DefaultWaldeAdminConfig {
   public static create(): StaticWaldeAdminConfig {
     const defaultConfig: WaldeAdminConfigData = {
       endpoint: 'https://api.walde.ai',
+      wsEndpoint: 'wss://ws.walde.ai',
       clientId: '2na3vdtebghu3se9rvimtuiaej',
       region: 'eu-central-1',
       userPoolId: 'eu-central-1_XLyUuL5PG',

@@ -1,6 +1,6 @@
 import { CognitoIdentityProviderClient, InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { TokenRefreshProvider } from '@/sdk/domain/ports/out/token-refresh-provider';
-import { Credentials } from '@/sdk/domain/entities/credentials';
+import { Credentials } from '@/sdk/domain/entities';
 import { WaldeUnexpectedError, WaldeAuthenticationError } from '@/sdk/domain/errors';
 
 /**

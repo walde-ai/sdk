@@ -1,4 +1,4 @@
-import { File } from '@/sdk/domain/entities/file';
+import { File } from '@/sdk/domain/entities';
 
 /**
  * Port for reading files from the filesystem

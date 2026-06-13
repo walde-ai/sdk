@@ -1,29 +1,48 @@
 {
   "name": "@walde.ai/sdk",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "TypeScript SDK for Walde",
   "main": "dist/node.js",
   "types": "dist/node.d.ts",
   "exports": {
     ".": {
-      "browser": "./dist/browser.js",
-      "node": "./dist/node.js",
-      "default": "./dist/node.js"
+      "browser": {
+        "types": "./dist/browser.d.ts",
+        "import": "./dist/esm/browser.js",
+        "default": "./dist/browser.js"
+      },
+      "node": {
+        "types": "./dist/node.d.ts",
+        "default": "./dist/node.js"
+      },
+      "default": {
+        "types": "./dist/browser.d.ts",
+        "default": "./dist/browser.js"
+      }
     },
     "./browser": {
       "types": "./dist/browser.d.ts",
+      "import": "./dist/esm/browser.js",
       "default": "./dist/browser.js"
+    },
+    "./browser-admin": {
+      "types": "./dist/browser-admin.d.ts",
+      "import": "./dist/esm/browser-admin.js",
+      "default": "./dist/browser-admin.js"
     },
     "./node": {
       "types": "./dist/node.d.ts",
       "default": "./dist/node.js"
+    },
+    "./bin/dev-server": {
+      "default": "./dist/sdk/bin/dev-server.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc && tsc-alias",
+    "build": "tsc && tsc-alias && tsc -p tsconfig.browser.json && tsc-alias -p tsconfig.browser.json",
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
@@ -36,6 +55,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/ws": "^8.18.1",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.0.0"
   },
@@ -43,6 +63,9 @@
     "@aws-sdk/client-cognito-identity-provider": "^3.0.0",
     "@aws-sdk/client-s3": "^3.0.0",
     "amazon-cognito-identity-js": "^6.3.12",
-    "gray-matter": "^4.0.3"
+    "gray-matter": "^4.0.3",
+    "ws": "^8.20.0",
+    "esbuild": "^0.24.0",
+    "@walde.ai/ws-protocol": "0.0.6"
   }
 }

@@ -1,6 +1,6 @@
 import { Future, ok, err } from '@/std';
 import type { Result } from '@/std';
-import { Content } from '@/sdk/domain/entities/content';
+import { Content } from '@/sdk/domain/entities';
 import { ListContents } from '@/sdk/domain/interactors/content/list-contents';
 
 export interface ContentsParams {

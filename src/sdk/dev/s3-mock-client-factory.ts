@@ -1,5 +1,5 @@
 import { S3ClientFactory } from '@/sdk/domain/ports/out/s3-client-factory';
-import { UiUploadCredentials } from '@/sdk/domain/entities/ui-upload-credentials';
+import { UiUploadCredentials } from '@/sdk/domain/entities';
 import { S3MockClient } from './s3-mock-client';
 
 /**

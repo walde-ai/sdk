@@ -1,6 +1,6 @@
 import { Future, Result, ok, err } from '@/std';
-import { WaldeAdmin } from './walde-admin-future';
-import { Site } from '@/sdk/domain/entities/site';
+import type { WaldeAdmin } from './walde-admin-future';
+import { Site } from '@/sdk/domain/entities';
 import { ListSites } from '@/sdk/domain/interactors/list-sites';
 import { SiteRepository } from '@/sdk/domain/ports/out/site-repository';
 import { SiteFuture } from './site-future';

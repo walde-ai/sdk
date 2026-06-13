@@ -1,6 +1,6 @@
 import { Future } from '@/std/domain/entities/future';
 import { Result, ok, err } from '@/std/domain/entities/result';
-import { FrontendContent } from '@/sdk/domain/entities/frontend-content';
+import { FrontendContent } from '@/sdk/domain/entities';
 import { FrontendHttpClient } from '@/sdk/infra/adapters/frontend-http-client';
 import { FrontendContentDtoMapper } from '@/sdk/infra/mappers/dto/frontend-content-dto-mapper';
 import { WaldeValidationError } from '@/sdk/domain/errors';

@@ -3,7 +3,12 @@
  */
 export interface TokenProvider {
   /**
-   * Get the access token for API authentication
+   * Get the id token for REST API authentication (Cognito idToken)
+   */
+  getIdToken(): Promise<string>;
+
+  /**
+   * Get the access token for WebSocket authentication (Cognito accessToken)
    */
   getAccessToken(): Promise<string>;
 }
