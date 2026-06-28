@@ -4,7 +4,6 @@ import { Project, ProjectState } from '@/sdk/domain/entities/project';
 import { ProjectRepository } from '@/sdk/domain/ports/out/project-repository';
 import { WaldeConfigurationError } from '@/sdk/domain/errors';
 
-const DEFAULT_READY_TIMEOUT_MS = 10 * 60 * 1000;
 const INITIAL_POLL_INTERVAL_MS = 500;
 const MAX_POLL_INTERVAL_MS = 5000;
 
@@ -13,7 +12,7 @@ type ProjectOperation = 'create' | 'get' | 'ready' | 'stage.add' | 'stage.update
 export class ProjectFuture extends Future<Project, WaldeAdmin> {
   private operation: ProjectOperation | null = null;
   private projectId?: string;
-  private readyTimeoutMs: number = DEFAULT_READY_TIMEOUT_MS;
+  private readyTimeoutMs?: number;
   private createParams?: { name: string; stages: Array<{ name: string; siteId: string }> };
   private stageData?: Record<string, unknown>;
 
@@ -39,13 +38,13 @@ export class ProjectFuture extends Future<Project, WaldeAdmin> {
     return future;
   }
 
-  ready(params?: { timeoutMs?: number }): ProjectFuture {
+  ready(params: { timeoutMs: number }): ProjectFuture {
     if (!this.projectId) {
       throw new WaldeConfigurationError('Project ID required for ready operation');
     }
     const future = new ProjectFuture({ parent: this.parent, projectsRepo: this.projectsRepo, projectId: this.projectId });
     future.operation = 'ready';
-    future.readyTimeoutMs = params?.timeoutMs ?? DEFAULT_READY_TIMEOUT_MS;
+    future.readyTimeoutMs = params.timeoutMs;
     return future;
   }
 
@@ -87,6 +86,9 @@ export class ProjectFuture extends Future<Project, WaldeAdmin> {
       case 'ready': {
         if (!this.projectId) {
           return err('Project ID required for ready operation');
+        }
+        if (this.readyTimeoutMs === undefined) {
+          return err('Timeout is required for ready operation');
         }
         return await this.pollUntilActive(this.projectId, this.readyTimeoutMs);
       }

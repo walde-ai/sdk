@@ -3,7 +3,7 @@ import { IWebSocketClientFactory } from '@/sdk/domain/ports/in/web-socket-client
 import { TokenProvider } from '@/sdk/domain/ports/in/token-provider';
 import { IWaldeWSSession } from '@/sdk/domain/ports/in/walde-ws-session';
 import { WebSocketConnect } from '@/sdk/domain/interactors/ws-connect';
-import { WSProtocolV20260411, IWSOperationListener, IWSSession, ProtocolV20260411Operations, ChatSendData, ChatStreamData, ChatStreamEndData, ChatCreatedData, ChatReadyData, ChatStatusData, ChatTerminatedData, ChatAbortAckData, TaskStartedData, TaskCancelledData, TaskCompletedData, TaskFailedData, ErrorData, WS_PROTOCOL_V20260411_NAME } from '@walde.ai/ws-protocol';
+import { WSProtocolV20260411, IWSOperationListener, IWSSession, ProtocolV20260411Operations, ChatSendData, ChatStreamData, ChatStreamEndData, ChatCreatedData, ChatReadyData, ChatStatusData, ChatTerminatedData, ChatAbortAckData, TaskStartedData, TaskCancelledData, TaskCompletedData, TaskFailedData, BriefUpdatedData, UiNavData, ErrorData, WS_PROTOCOL_V20260411_NAME } from '@walde.ai/ws-protocol';
 import { WSClientSession } from '../sessions/ws-client-session';
 import { WaldeWSSession } from '../sessions/walde-ws-session';
 import type { WaldeAdmin } from './walde-admin-future';
@@ -25,6 +25,8 @@ interface WebSocketSessionFutureConfig {
   taskCancelledCallback: ((data: TaskCancelledData) => void) | undefined;
   taskCompletedCallback: ((data: TaskCompletedData) => void) | undefined;
   taskFailedCallback: ((data: TaskFailedData) => void) | undefined;
+  briefUpdatedCallback: ((data: BriefUpdatedData) => void) | undefined;
+  uiNavCallback: ((data: UiNavData) => void) | undefined;
   errorCallback: ((data: ErrorData) => void) | undefined;
 }
 
@@ -56,6 +58,8 @@ export class WebSocketSessionFuture extends Future<IWaldeWSSession, WaldeAdmin> 
   private readonly taskCancelledCallback: ((data: TaskCancelledData) => void) | undefined;
   private readonly taskCompletedCallback: ((data: TaskCompletedData) => void) | undefined;
   private readonly taskFailedCallback: ((data: TaskFailedData) => void) | undefined;
+  private readonly briefUpdatedCallback: ((data: BriefUpdatedData) => void) | undefined;
+  private readonly uiNavCallback: ((data: UiNavData) => void) | undefined;
   private readonly errorCallback: ((data: ErrorData) => void) | undefined;
 
   constructor(config: WebSocketSessionFutureConfig) {
@@ -75,6 +79,8 @@ export class WebSocketSessionFuture extends Future<IWaldeWSSession, WaldeAdmin> 
     this.taskCancelledCallback = config.taskCancelledCallback;
     this.taskCompletedCallback = config.taskCompletedCallback;
     this.taskFailedCallback = config.taskFailedCallback;
+    this.briefUpdatedCallback = config.briefUpdatedCallback;
+    this.uiNavCallback = config.uiNavCallback;
     this.errorCallback = config.errorCallback;
   }
 
@@ -92,6 +98,8 @@ export class WebSocketSessionFuture extends Future<IWaldeWSSession, WaldeAdmin> 
       'task.cancelled': IWSOperationListener<TaskCancelledData, ProtocolV20260411Operations>;
       'task.completed': IWSOperationListener<TaskCompletedData, ProtocolV20260411Operations>;
       'task.failed': IWSOperationListener<TaskFailedData, ProtocolV20260411Operations>;
+      'brief.updated': IWSOperationListener<BriefUpdatedData, ProtocolV20260411Operations>;
+      'ui.nav': IWSOperationListener<UiNavData, ProtocolV20260411Operations>;
       'error': IWSOperationListener<ErrorData, ProtocolV20260411Operations>;
     }> = {};
 
@@ -130,6 +138,12 @@ export class WebSocketSessionFuture extends Future<IWaldeWSSession, WaldeAdmin> 
     }
     if (this.taskFailedCallback) {
       listeners['task.failed'] = new CallbackOperationListener(this.taskFailedCallback);
+    }
+    if (this.briefUpdatedCallback) {
+      listeners['brief.updated'] = new CallbackOperationListener(this.briefUpdatedCallback);
+    }
+    if (this.uiNavCallback) {
+      listeners['ui.nav'] = new CallbackOperationListener(this.uiNavCallback);
     }
     if (this.errorCallback) {
       listeners['error'] = new CallbackOperationListener(this.errorCallback);

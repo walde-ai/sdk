@@ -30,10 +30,11 @@ export class SiteCloudApiPushFuture extends Future<CloudApiDeployResult, WaldeAd
   async resolve(): Promise<Result<CloudApiDeployResult, WaldeError>> {
     const filePaths = this.filePathsProvider ? await this.filePathsProvider() : this.filePaths;
     const backend = this.parent.getConfig().backendCommunication;
+    const s3ClientFactory = this.parent.getConfig().config.s3ClientFactory;
     const interactor = new PushCloudApis(
       new BundleBuilder(),
       new WriterApiCloudApiUploadCredentialsRepo(backend),
-      new DeployBucketS3Uploader(),
+      new DeployBucketS3Uploader(s3ClientFactory),
       new WriterApiCloudApiDeployTriggerRepo(backend)
     );
     return await interactor.execute({

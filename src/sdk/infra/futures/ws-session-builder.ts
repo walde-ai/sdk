@@ -1,6 +1,6 @@
 import { IWebSocketClientFactory } from '@/sdk/domain/ports/in/web-socket-client-factory';
 import { TokenProvider } from '@/sdk/domain/ports/in/token-provider';
-import { ChatSendData, ChatStreamData, ChatStreamEndData, ChatCreatedData, ChatReadyData, ChatStatusData, ChatTerminatedData, ChatAbortAckData, TaskStartedData, TaskCancelledData, TaskCompletedData, TaskFailedData, ErrorData } from '@walde.ai/ws-protocol';
+import { ChatSendData, ChatStreamData, ChatStreamEndData, ChatCreatedData, ChatReadyData, ChatStatusData, ChatTerminatedData, ChatAbortAckData, TaskStartedData, TaskCancelledData, TaskCompletedData, TaskFailedData, BriefUpdatedData, UiNavData, ErrorData } from '@walde.ai/ws-protocol';
 import { WebSocketSessionFuture } from './web-socket-session-future';
 import type { WaldeAdmin } from './walde-admin-future';
 
@@ -25,6 +25,8 @@ export class WSSessionBuilder {
   private taskCancelledCallback: ((data: TaskCancelledData) => void) | undefined;
   private taskCompletedCallback: ((data: TaskCompletedData) => void) | undefined;
   private taskFailedCallback: ((data: TaskFailedData) => void) | undefined;
+  private briefUpdatedCallback: ((data: BriefUpdatedData) => void) | undefined;
+  private uiNavCallback: ((data: UiNavData) => void) | undefined;
   private errorCallback: ((data: ErrorData) => void) | undefined;
 
   constructor(config: WSSessionBuilderConfig) {
@@ -91,6 +93,16 @@ export class WSSessionBuilder {
     return this;
   }
 
+  onBriefUpdated(callback: (data: BriefUpdatedData) => void): WSSessionBuilder {
+    this.briefUpdatedCallback = callback;
+    return this;
+  }
+
+  onUiNav(callback: (data: UiNavData) => void): WSSessionBuilder {
+    this.uiNavCallback = callback;
+    return this;
+  }
+
   onError(callback: (data: ErrorData) => void): WSSessionBuilder {
     this.errorCallback = callback;
     return this;
@@ -114,6 +126,8 @@ export class WSSessionBuilder {
       taskCancelledCallback: this.taskCancelledCallback,
       taskCompletedCallback: this.taskCompletedCallback,
       taskFailedCallback: this.taskFailedCallback,
+      briefUpdatedCallback: this.briefUpdatedCallback,
+      uiNavCallback: this.uiNavCallback,
       errorCallback: this.errorCallback,
     });
   }

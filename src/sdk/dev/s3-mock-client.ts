@@ -43,6 +43,9 @@ export class S3MockClient {
       throw new Error(`Upload failed with status ${response.status}: ${response.statusText}`);
     }
 
-    return {};
+    const etag = response.headers.get('ETag') ?? response.headers.get('etag') ?? undefined;
+    return {
+      ETag: etag
+    };
   }
 }

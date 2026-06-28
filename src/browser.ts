@@ -36,5 +36,5 @@ export { Brief } from './sdk/domain/entities/brief';
 export type { BriefEnvelope, BriefState, SectionKey, BriefComment } from './sdk/domain/entities/brief';
 
 // WebSocket session types for hub chat
-export type { ChatStreamData, ChatStreamEndData, BackgroundTaskAgent } from '@walde.ai/ws-protocol';
+export type { ChatStreamData, ChatStreamEndData, BackgroundTaskAgent, BriefUpdatedData, UiNavData } from '@walde.ai/ws-protocol';
 export type { IWaldeWSSession } from './sdk/domain/ports/in/walde-ws-session';

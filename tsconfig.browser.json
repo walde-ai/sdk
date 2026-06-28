@@ -5,7 +5,8 @@
     "moduleResolution": "Bundler",
     "outDir": "./dist/esm",
     "declaration": false,
-    "declarationMap": false
+    "declarationMap": false,
+    "sourceMap": false
   },
   "include": ["src/browser.ts", "src/browser-admin.ts"]
 }

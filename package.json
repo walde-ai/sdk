@@ -1,6 +1,6 @@
 {
   "name": "@walde.ai/sdk",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "TypeScript SDK for Walde",
   "main": "dist/node.js",
   "types": "dist/node.d.ts",
@@ -66,6 +66,6 @@
     "gray-matter": "^4.0.3",
     "ws": "^8.20.0",
     "esbuild": "^0.24.0",
-    "@walde.ai/ws-protocol": "0.0.6"
+    "@walde.ai/ws-protocol": "0.0.7"
   }
 }

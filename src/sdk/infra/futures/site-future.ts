@@ -16,18 +16,18 @@ import { CacheInvalidationFuture } from './cache-invalidation-future';
 import { WaldeConfigurationError } from '@/sdk/domain/errors';
 import { SiteCloudFuture } from './site-cloud-future';
 
-const DEFAULT_READY_TIMEOUT_MS = 10 * 60 * 1000;
 const INITIAL_POLL_INTERVAL_MS = 1000;
 const MAX_POLL_INTERVAL_MS = 180 * 1000;
 
 export class SiteFuture extends Future<Site, WaldeAdmin> {
-  private operation: 'create' | 'associateCertificates' | 'addCustomDomain' | 'ready' | 'delete' | 'awaitDeleted' | 'get' | null = null;
+  private operation: 'create' | 'associateCertificates' | 'addCustomDomain' | 'ready' | 'delete' | 'get' | null = null;
   private name?: string;
   private region?: string;
   private siteId?: string;
   private domain?: string;
   private sitesRepo: SiteRepository;
-  private readyTimeoutMs: number = DEFAULT_READY_TIMEOUT_MS;
+  private readyTimeoutMs?: number;
+  private readyTargetState: SiteState = SiteState.UPDATED;
 
   constructor({ parent, sitesRepo, siteId }: { parent: WaldeAdmin; sitesRepo: SiteRepository; siteId?: string }) {
     super({ parent });
@@ -72,17 +72,6 @@ export class SiteFuture extends Future<Site, WaldeAdmin> {
     return future;
   }
 
-  awaitDeleted(params?: { timeoutMs?: number }): SiteFuture {
-    if (!this.siteId) {
-      throw new WaldeConfigurationError('Site ID required for awaitDeleted operation');
-    }
-    const future = new SiteFuture({ parent: this.parent, sitesRepo: this.sitesRepo });
-    future.operation = 'awaitDeleted';
-    future.siteId = this.siteId;
-    future.readyTimeoutMs = params?.timeoutMs ?? DEFAULT_READY_TIMEOUT_MS;
-    return future;
-  }
-
   get(): SiteFuture {
     if (!this.siteId) {
       throw new WaldeConfigurationError('Site ID required for get operation');
@@ -101,17 +90,17 @@ export class SiteFuture extends Future<Site, WaldeAdmin> {
    * Resolves successfully when state becomes UPDATED or DELETED.
    * Returns an error if state becomes ERROR or if the timeout is reached.
    *
-   * @param params - Optional configuration
-   * @param params.timeoutMs - Maximum polling duration (default: 5 minutes)
+   * @param params.timeoutMs - Maximum polling duration in milliseconds.
    */
-  ready(params?: { timeoutMs?: number }): SiteFuture {
+  ready(params: { timeoutMs: number }): SiteFuture {
     if (!this.siteId) {
       throw new WaldeConfigurationError('Site ID required for ready operation');
     }
     const future = new SiteFuture({ parent: this.parent, sitesRepo: this.sitesRepo });
     future.operation = 'ready';
     future.siteId = this.siteId;
-    future.readyTimeoutMs = params?.timeoutMs ?? DEFAULT_READY_TIMEOUT_MS;
+    future.readyTimeoutMs = params.timeoutMs;
+    future.readyTargetState = this.operation === 'delete' ? SiteState.DELETED : SiteState.UPDATED;
     return future;
   }
 
@@ -243,7 +232,10 @@ export class SiteFuture extends Future<Site, WaldeAdmin> {
         if (!this.siteId) {
           return err('Site ID required for ready operation');
         }
-        return await this.pollUntilReady(this.siteId, this.readyTimeoutMs);
+        if (this.readyTimeoutMs === undefined) {
+          return err('Timeout is required for ready operation');
+        }
+        return await this.pollUntilReady(this.siteId, this.readyTimeoutMs, this.readyTargetState);
       }
       case 'delete': {
         if (!this.siteId) {
@@ -251,12 +243,6 @@ export class SiteFuture extends Future<Site, WaldeAdmin> {
         }
         const deleteSite = new DeleteSite(this.sitesRepo);
         return await deleteSite.execute(this.siteId);
-      }
-      case 'awaitDeleted': {
-        if (!this.siteId) {
-          return err('Site ID required for awaitDeleted operation');
-        }
-        return await this.pollUntilDeleted(this.siteId, this.readyTimeoutMs);
       }
       case 'get': {
         if (!this.siteId) {
@@ -270,60 +256,36 @@ export class SiteFuture extends Future<Site, WaldeAdmin> {
     }
   }
 
-  private async pollUntilReady(siteId: string, timeoutMs: number): Promise<Result<Site, string>> {
+  private async pollUntilReady(siteId: string, timeoutMs: number, targetState: SiteState): Promise<Result<Site, string>> {
     const startTime = Date.now();
     let intervalMs = INITIAL_POLL_INTERVAL_MS;
     let lastError: unknown = null;
+    let resolvedTargetState = targetState;
 
     while (true) {
       const elapsed = Date.now() - startTime;
       if (elapsed >= timeoutMs) {
         const detail = lastError instanceof Error ? `: ${lastError.message}` : '';
-        return err(`Timed out waiting for site provisioning to complete${detail}`);
+        return err(`Timed out waiting for site to reach ${resolvedTargetState}${detail}`);
       }
 
       try {
         const site = await this.sitesRepo.get(siteId);
         lastError = null;
 
-        if (site.state === SiteState.UPDATED || site.state === SiteState.DELETED) {
+        if (
+          resolvedTargetState === SiteState.UPDATED &&
+          (site.state === SiteState.DELETE_REQUESTED || site.state === SiteState.DELETED)
+        ) {
+          resolvedTargetState = SiteState.DELETED;
+        }
+
+        if (site.state === resolvedTargetState) {
           return ok(site);
         }
 
         if (site.state === SiteState.ERROR) {
-          return err('Site provisioning failed');
-        }
-      } catch (error: unknown) {
-        lastError = error;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, intervalMs));
-      intervalMs = Math.min(intervalMs * 2, MAX_POLL_INTERVAL_MS);
-    }
-  }
-
-  private async pollUntilDeleted(siteId: string, timeoutMs: number): Promise<Result<Site, string>> {
-    const startTime = Date.now();
-    let intervalMs = INITIAL_POLL_INTERVAL_MS;
-    let lastError: unknown = null;
-
-    while (true) {
-      const elapsed = Date.now() - startTime;
-      if (elapsed >= timeoutMs) {
-        const detail = lastError instanceof Error ? `: ${lastError.message}` : '';
-        return err(`Timed out waiting for site deletion to complete${detail}`);
-      }
-
-      try {
-        const site = await this.sitesRepo.get(siteId);
-        lastError = null;
-
-        if (site.state === SiteState.DELETED) {
-          return ok(site);
-        }
-
-        if (site.state === SiteState.ERROR) {
-          return err('Site deletion failed');
+          return err(`Site transitioned to ERROR while waiting for ${resolvedTargetState}`);
         }
       } catch (error: unknown) {
         lastError = error;

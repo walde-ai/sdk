@@ -26,7 +26,7 @@ const CLOUD_PACKAGE_JSON_CONTENT = JSON.stringify(
     version: '0.1.0',
     private: true,
     dependencies: {
-      '@walde.ai/sdk': '0.0.5',
+      '@walde.ai/sdk': 'latest',
     },
     devDependencies: {
       tsx: '^4.20.3',

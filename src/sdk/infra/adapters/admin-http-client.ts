@@ -68,10 +68,10 @@ export class AdminHttpClient {
   }
 
   private async request(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: any, customHeaders?: Record<string, string>): Promise<any> {
-    const accessToken = await this.tokenProvider.getIdToken();
+    const idToken = await this.tokenProvider.getIdToken();
     
     const headers = {
-      'Authorization': `Bearer ${accessToken}`,
+      'Authorization': `Bearer ${idToken}`,
       ...customHeaders
     };
 
